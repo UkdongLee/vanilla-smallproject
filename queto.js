@@ -18,12 +18,6 @@ function genNum() {
     return Math.floor(Math.random() * arrSen.length);
 }
 
-function openTextFile(){
-    input2.
-}
-
-
-
 function init() {
     input2.addEventListener("click", paintQueto);
 }
