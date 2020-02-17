@@ -4,9 +4,10 @@ const weather = document.getElementById("weather");
 //strage key name
 const coords = "coords";
 
-function getweather(lat, lon) {
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
+function getweather(lat, log) {
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${log}&appid=${apiKey}&units=metric`)
     .then(function(response) {
+        console.log(response);
         return response.json();
     })
     .then(function(json) {
@@ -16,9 +17,18 @@ function getweather(lat, lon) {
     });
 }
 
+function savePosition(coord) {
+    localStorage.setItem(coords, JSON.stringify(coord));
+}
+
 function dropPosition(position) {
     const laPosition = position.coords.latitude;
     const loPosition = position.coords.longitude;
+    const positionObj = {
+        laPosition,
+        loPosition
+    }
+    savePosition(positionObj);
     getweather(laPosition, loPosition);
 }
 
@@ -28,25 +38,17 @@ function getLocation() {
     } else {
         weather.innerHTML = "Geolocation is not supported by this browser.";
     }
-}
 
-function paintWeather() {
-
-}
-
-function loadWeather() {
-    
 }
 
 function init() {
-    getLocation();
-    
-    // const bringInfo = localStorage.getItem(coords);
-    // if (bringInfo === null){
-    //     getLocation();
-    // } else {
-
-    // }
+    const bringInfo = localStorage.getItem(coords);
+    if (bringInfo === null){
+        getLocation();
+    } else {
+    const broughtInfo = JSON.parse(bringInfo);
+    getweather(broughtInfo.laPosition, broughtInfo.loPosition);
+    }
 }
 
 init();
