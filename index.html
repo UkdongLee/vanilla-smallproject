@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>test</title>
-    <style src=style.css></style>
+    <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body>
+    <!-- random image -->
+    <article id="bg_photo">
+        <div class="bg_photo"></div>
+    </article>
+
     <!-- clock -->
     <article id="clock">
         <form class="jsForm">
@@ -31,6 +36,39 @@
         <ul class="toDoList"></ul>
     </article>
 
+    <!-- manage tasks -->
+    <div id="manageTask">
+        
+        <!-- to do -->
+        <article class="todo">
+            <div class="todo_title">
+                <h2>TO DO LIST</h2>
+            </div>
+            <form class="todo_list">
+                <input type="text" placeholder="type what you have to do">
+            </form>
+            <ul class="todo_content"></ul>
+        </article>
+
+        <!-- doing -->
+        <article class="doing">
+            <div class="doing_title">
+                <h2>DOING</h2>
+            </div>
+            <form class="doing_list"></form>
+            <ul class="doing_content"></ul>
+        </article>
+
+        <!-- done -->
+        <article class="done">
+            <div class="done_title">
+                <h2>DONE</h2>
+            </div>
+            <form class="done_list"></form>
+            <ul class="done_content"></ul>
+        </article>
+    </div>
+
     <!-- queto -->
     <form class="queto">
         <input type="button" value="button">
@@ -45,10 +83,12 @@
     </article>
 </body>
 
-<script src=clock.js></script>
-<script src=bg_photo.js></script>
-<script src=todolist.js></script>
-<script src=greeting.js></script>
-<script src=queto.js></script>
-<script src=weather.js></script>
+<script src="clock.js"></script>
+<script src="bg_photo.js"></script>
+<script src="todolist.js"></script>
+<script src="todolist2.js"></script>
+<script src="greeting.js"></script>
+<script src="quetoSrc.js"></script>
+<script src="queto.js"></script>
+<script src="weather.js"></script>
 </html>
