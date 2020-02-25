@@ -1,7 +1,3 @@
-// 문제해결능력 - 이것저것 보다가 삼천포로 빠지지말고 문제를 정확히 표기한다음 순차적으로 해결해 나갈 것
-//             표기할때는 종이에 목표 1 이렇게 쓰자. 목표 1을 해결하기 위한 방법으로 여러가지를 학습할 것 
-//             이 때 학습한 것은 표기해놓고 공부 끝날 때 정리해서 노션에 업데이트 시켜놓도록 
-
 const manageTask = document.querySelector("#manageTask");           
 
 const todo_list = manageTask.querySelector(".todo_list");           // get todo
@@ -15,21 +11,21 @@ const done_list = manageTask.querySelector(".done_list");           // get done
 const done_content = manageTask.querySelector(".done_content");
 
 
-function manageBtn(thisCon) {
+function manageBtn(thisCon, thisText) {
     const targetBtn = event.target;
     const targetList = targetBtn.parentNode;
-    const deletedText = thisCon.querySelector("li span").textContent; // this is problem
+    // const deletedText = thisCon.querySelector("li span").textContent; // this is problem
 
     thisCon.removeChild(targetList);
     
     if (thisCon === todo_content) {
-        attachList(doing_content, deletedText);
+        attachList(doing_content, thisText);
     } else if (thisCon === doing_content) {
-        attachList(done_content, deletedText);
+        attachList(done_content, thisText);
     }
 }
 
-function attachList(content, text = null) {           
+function attachList(content, text=null) {           
     const li = document.createElement("li");
     const button = document.createElement("button");
     const span = document.createElement("span");
@@ -53,7 +49,7 @@ function attachList(content, text = null) {
     span.innerText = text;
     
     button.addEventListener("click", function() {
-        manageBtn(content)
+        manageBtn(content, span.innerText)
     })  
 }
 
