@@ -1,21 +1,30 @@
 const todoform = document.querySelector(".todoform");
 const todoinput = todoform.querySelector("input");
 const todolist = document.querySelector(".toDoList");
+const doneform = document.querySelector(".doneform");
 
 const KEYVAL = "TODOLIST"
-let ArraytoDos = []; 
+let ArraytoDos = [];
+let Arraydone = [];
+let countNum = null;
 
+function doneForm(){
+    countNum++;
+    doneform.innerText = `${countNum}`;
+}
 
-function deleteToDo (event) {
+function deleteToDo(event) {
     const writtenListDelBtn = event.target;
     const writtenList = writtenListDelBtn.parentNode;
     todolist.removeChild(writtenList);
+
     const cleanToDos = ArraytoDos.filter(function(list) {
-        return list.id !== parseInt(writtenList.id);
+       return list.id !== parseInt(writtenList.id)
     });
+
     ArraytoDos = cleanToDos;
     saveToDos();
-
+    doneForm();
 }
 
 function saveToDos() {
@@ -23,15 +32,11 @@ function saveToDos() {
 }
 
 function showToDo(text) {
-    //create element for show
     const writtenList = document.createElement("li");
     const writtenListDelBtn = document.createElement("button");
     const wriitentoDo = document.createElement("span");
     const newId = ArraytoDos.length + 1;
 
-    //insert created elements (li > button, span)
-    //button - When user wants delete todolist
-    //span - space to placed todolist 
     todolist.appendChild(writtenList);
     writtenList.appendChild(writtenListDelBtn);
     writtenList.appendChild(wriitentoDo);
@@ -65,7 +70,6 @@ function handleSubmit (event) {
     const currentValue = todoinput.value;
     showToDo(currentValue);
     todoinput.value = "";
-    
 }
 
 function init() {

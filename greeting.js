@@ -1,5 +1,5 @@
-const form = document.querySelector(".js-greeting-form"),
-         input = form.querySelector("input");
+const form = document.querySelector(".js-greeting-form");
+const input = form.querySelector("input");
 const greetings = document.querySelector(".greetings");
 
 const Key = 'GREETING' //key storage

@@ -1,11 +1,7 @@
 {
-	"folders": [
-		{
-			"path": "/Users/dave/Documents/javascript"
-		},
-		{
-			"path": "."
-		}
-	],
-	"settings": {}
+    "folders": [
+        {
+            "path": "/Users/dave/Documents/NodeJS"
+        }
+    ]
 }

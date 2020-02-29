@@ -4,8 +4,13 @@ const weather = document.getElementById("weather");
 //strage key name
 const coords = "coords";
 
-function getweather(lat, log) {
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${log}&appid=${apiKey}&units=metric`)
+function getweather(broughtInfo) {
+    console.log('this is broughtInfo');;
+    const lat = broughtInfo.laPosition;
+    const log = broughtInfo.loPosition;
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${log}&appid=${apiKey}&units=metric`; 
+
+    fetch(url)
     .then(function(response) {
         console.log(response);
         return response.json();
@@ -27,27 +32,29 @@ function dropPosition(position) {
     const positionObj = {
         laPosition,
         loPosition
-    }
+    };
     savePosition(positionObj);
-    getweather(laPosition, loPosition);
+    console.log('this is dropPosition');
+    getweather(laPosition, loPosition); // 내 생각엔 여기가 문제야. 매개변수가 2개인데 getweather함수에서 매개변수 1개로 받는중임... 이게 정상적으로 위치값이 전달되는걸까?
 }
 
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(dropPosition);
+        console.log('this is getLocation')
     } else {
         weather.innerHTML = "Geolocation is not supported by this browser.";
     }
-
 }
 
 function init() {
     const bringInfo = localStorage.getItem(coords);
     if (bringInfo === null){
+        console.log('this is bringInfo')
         getLocation();
     } else {
     const broughtInfo = JSON.parse(bringInfo);
-    getweather(broughtInfo.laPosition, broughtInfo.loPosition);
+    getweather(broughtInfo);
     }
 }
 
