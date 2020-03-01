@@ -1,6 +1,6 @@
-const queto = document.querySelector(".queto");
-var input2 = queto.querySelector("input");
-const quetoSen = queto.querySelector(".quetoSen");
+const queto = document.querySelector("#queto");
+const queto_input = queto.querySelector("input");
+const quetoSen = queto.querySelector(".queto");
 
 function paintQueto() {
     textNum = genNum();
@@ -12,7 +12,7 @@ function genNum() {
 }
 
 function init() {
-    input2.addEventListener("click", paintQueto);
+    queto_input.addEventListener("click", paintQueto);
 }
 
 init();

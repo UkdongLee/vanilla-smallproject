@@ -14,8 +14,7 @@ const done_content = manageTask.querySelector(".done_content");
 function manageBtn(thisCon, thisText) {
     const targetBtn = event.target;
     const targetList = targetBtn.parentNode;
-    // const deletedText = thisCon.querySelector("li span").textContent; // this is problem
-
+ 
     thisCon.removeChild(targetList);
     
     if (thisCon === todo_content) {

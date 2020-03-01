@@ -1,5 +1,5 @@
-const jsForm = document.querySelector('.jsForm');
-const clockTitle = jsForm.querySelector('h1');
+const clock = document.querySelector('#clock');
+const clockTitle = clock.querySelector('.clock');
 
 function runClock() {
     const date = new Date();
