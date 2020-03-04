@@ -5,7 +5,6 @@ const weather = document.getElementById("weather");
 const coords = "coords";
 
 function getweather(broughtInfo) {
-    console.log('this is broughtInfo');;
     const lat = broughtInfo.laPosition;
     const log = broughtInfo.loPosition;
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${log}&appid=${apiKey}&units=metric`; 

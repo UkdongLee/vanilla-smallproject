@@ -18,9 +18,9 @@ const app = http.createServer(       //create server
 
         nameOfComponents = [         // another components
           {"section" : "bg_photo", "title" : ""},
-          {"section" : "weather", "title" : ""},
-          {"section" : "clock", "title" : ""},
           {"section" : "greeting", "title" : ""},
+          {"section" : "clock", "title" : ""},
+          {"section" : "weather", "title" : ""},
           {"section" : "queto", "title" : "This is Queto"}
         ]
           const components = template.templateComponents(nameOfComponents);
