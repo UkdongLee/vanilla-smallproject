@@ -1,0 +1,25 @@
+{
+  "name": "modal-js",
+  "version": "1.0.0",
+  "description": "vanilla",
+  "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "hello"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UkdongLee/vanilla-smallproject.git"
+  },
+  "author": "dave",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UkdongLee/vanilla-smallproject/issues"
+  },
+  "homepage": "https://github.com/UkdongLee/vanilla-smallproject#readme",
+  "dependencies": {
+    "mysql": "^2.18.1"
+  }
+}
