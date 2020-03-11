@@ -1,60 +1,70 @@
-const http = require('http');
-const fs = require('fs');
-const url = require('url');
-const template = require('./lib/template');
+var http = require('http');
+var url = require('url');
+var template = require('./lib/template');
+var fs = require('fs');
 
-const mysql_dbc = require('./db_con')();
-const getDb = mysql_dbc.init();
-mysql_dbc.test_open(getDb);      // MySQL server connect
+// var mysql_test = require('./db_con.js')();      // get database
+// var getDb = mysql_test.init();
+// mysql_test.test_open(getDb);
 
+// var quetoStr = function() {
+//     getDb.query(`SELECT count(*) FROM queto_src`, function(error, length) {
+//     if(error) {throw error};
+//     console.log(length);
+// });
+// }
 
-const app = http.createServer(       //create server
-  function(request,response) {   
-    
-    /*
-    getDb.query(`SELECT * FROM queto_src`, function(error, quetos) {
-      if(error) {throw error};
-      const id = quetos.id;
-      const title = quetos.queto;
-    });
-    */
+var app = http.createServer(function(request,response) {  
 
-    getDb.query(`SELECT * FROM queto_src WHERE id = ?`,[], function(error, quetos) {
-      if(error) {throw error};
-      const id = quetos.id;
-      const title = quetos.queto;
-    });
+    var _url = request.url;
+    var queryData = url.parse(_url, true).query;
+    var pathName = url.parse(_url, true).pathname;
 
+    if(pathName === '/'){
+      if(queryData.id === undefined) {      //home
+          nameOfLists = [              // todolist
+            {"section" : "todo", "title" : "TO DO LIST"},
+            {"section" : "doing", "title" : "DOING"},
+            {"section" : "done", "title" : "DONE"},
+          ]
+          var templateLists = template.templateList(nameOfLists);
 
-    var url = request.url;
-      if(request.url == '/'){
-        url = '/index.html';
+          nameOfComponents = [         // another components
+            {"section" : "bg_photo", "title" : ""},
+            {"section" : "greeting", "title" : ""},
+            {"section" : "clock", "title" : ""},
+            {"section" : "weather", "title" : ""},
+            {"section" : "queto", "title" : "This is Queto"}
+          ]
+          var components = template.templateComponents(nameOfComponents);
 
-        nameOfLists = [              // todolist
-          {"section" : "todo", "title" : "TO DO LIST"},
-          {"section" : "doing", "title" : "DOING"},
-          {"section" : "done", "title" : "DONE"},
-        ]
-          const templateLists = template.templateList(nameOfLists);
+          nameOfPackageFile = [
+            {"name" : "clock.js",},
+            {"name" : "bg_photo.js",},
+            {"name" : "todolist2.js",},
+            {"name" : "greeting.js",},
+            {"name" : "queto.js",},
+            {"name" : "weather.js",},
+            {"name" : "db_con.js",},
+          ]
 
-        nameOfComponents = [         // another components
-          {"section" : "bg_photo", "title" : ""},
-          {"section" : "greeting", "title" : ""},
-          {"section" : "clock", "title" : ""},
-          {"section" : "weather", "title" : ""},
-          {"section" : "queto", "title" : "This is Queto"}
-        ]
-          const components = template.templateComponents(nameOfComponents);
+          var packageFile = template.readFile(nameOfPackageFile);
+
+          var templateHTML = template.templateHTML(components, templateLists);
           
-          const templateHTML = template.templateHTML(components, templateLists);
-        
+          /*
+          response.writeHead(200, {'Content-type' : 'text/css'});
+          var fileContents = fs.readFileSync('./views/styles.css', {encoding: 'utf8'});
+          response.write(fileContents);
+          response.end();
+          */
+
           response.writeHead(200);
           response.end(templateHTML);
-      };
-          if(request.url == '/favicon.ico'){
-          return response.writeHead(404);
-      };
-    response.writeHead(200);
-    response.end(fs.readFileSync(__dirname + url));
+      }  else {
+        response.writeHead(404);
+        response.end('Not Found');
+      }   
+    }
 });
 app.listen(3000);
