@@ -2,6 +2,10 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+var mysql_test = require('./db_con.js')();
+var db = mysql_test.db_init();
+mysql_test.test_open(db);          // DB con
+
 const path = require('path');
 
 const template = require('./lib/template');
@@ -11,31 +15,39 @@ app.use(express.static('public'));
 
 
 app.get('/', (req, res, next) => {
-  nameOfLists = [              // todolist
-    {"section" : "todo", "title" : "TO DO LIST"},
-    {"section" : "doing", "title" : "DOING"},
-    {"section" : "done", "title" : "DONE"}
-  ]
-  var templateLists = template.templateList(nameOfLists);
+    db.query(`SELECT count(*) FROM queto_src`, function(error, quetos) {
+        if(error) {throw error};
+        var randNum = Object.values(quetos[0])[0];
+            ranNum = Math.floor(Math.random() * randNum);
 
-  nameOfComponents = [         // another components
-    {"section" : "bg_photo", "title" : ""},
-    {"section" : "greeting", "title" : ""},
-    {"section" : "clock", "title" : ""},
-    {"section" : "weather", "title" : ""},
-    {"section" : "queto", "title" : ''}
-  ]
+        db.query(`SELECT * FROM queto_src WHERE id = ?`,[ranNum], function(error, ranQueto) {
+            if(error) {throw error}
+            var pickedQueto = ranQueto[0].queto;
 
-  // var Q = template.templateQueto('queto', )
-
-  dataSrc.quetoSen(function(callback) {
-    return callback;
-  });
-
-  var components = template.templateComponents(nameOfComponents);
-  var templateHTML = template.templateHTML(components, templateLists);
-
-  res.send(templateHTML);
+            nameOfLists = [              // todolist
+                {"section" : "todo", "title" : "TO DO LIST"},
+                {"section" : "doing", "title" : "DOING"},
+                {"section" : "done", "title" : "DONE"}
+            ]
+            var templateLists = template.templateList(nameOfLists);
+        
+            nameOfComponents = [         // another components
+                {"section" : "bg_photo", "title" : ""},
+                {"section" : "greeting", "title" : ""},
+                {"section" : "clock", "title" : ""},
+                {"section" : "weather", "title" : ""},
+                {"section" : "queto", "title" : `${pickedQueto}`}
+            ]
+            /*dataSrc.quetoSen(function(callback) {
+            console.log(callback);
+            });*/
+        
+            var components = template.templateComponents(nameOfComponents);
+            var templateHTML = template.templateHTML(components, templateLists);
+        
+            res.send(templateHTML);    
+        }); 
+    });
 });
 
 app.listen(port, () => {
