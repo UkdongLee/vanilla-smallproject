@@ -7,26 +7,14 @@ const path = require('path');
 const template = require('./lib/template');
 const dataSrc = require('./lib/dataSrc')
 
-// var publicPath = path.join(__dirname, 'public');
 app.use(express.static('public'));
 
-// var mysql_test = require('./db_con.js')();      // get database
-// var getDb = mysql_test.init();
-// mysql_test.test_open(getDb);
 
-// var quetoStr = function() {
-//     getDb.query(`SELECT count(*) FROM queto_src`, function(error, length) {
-//     if(error) {throw error};
-//     console.log(length);
-// });
-// }
-  var servedQueto = dataSrc.quetoSen();
-  console.log(servedQueto);
 app.get('/', (req, res, next) => {
   nameOfLists = [              // todolist
     {"section" : "todo", "title" : "TO DO LIST"},
     {"section" : "doing", "title" : "DOING"},
-    {"section" : "done", "title" : "DONE"},
+    {"section" : "done", "title" : "DONE"}
   ]
   var templateLists = template.templateList(nameOfLists);
 
@@ -37,8 +25,14 @@ app.get('/', (req, res, next) => {
     {"section" : "weather", "title" : ""},
     {"section" : "queto", "title" : ''}
   ]
-  var components = template.templateComponents(nameOfComponents);
 
+  // var Q = template.templateQueto('queto', )
+
+  dataSrc.quetoSen(function(callback) {
+    return callback;
+  });
+
+  var components = template.templateComponents(nameOfComponents);
   var templateHTML = template.templateHTML(components, templateLists);
 
   res.send(templateHTML);
