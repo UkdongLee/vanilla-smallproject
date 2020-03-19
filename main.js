@@ -2,44 +2,33 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-var mysql_test = require('./db_con.js')();
+var mysql_test = require('./db_con.js')(); // DB connect
 var db = mysql_test.db_init();
-mysql_test.test_open(db);          // DB con
+mysql_test.test_open(db);          
 
-const cookie = require('cookie');
+const cookie = require('cookie');   // cookie
+const auth = require('./lib/auth'); // authentication with session
 const template = require('./lib/template');
 
-
-// middle ware
-app.use(express.static('public'));      // read static files
-
-var bodyParser = require('body-parser');    
-app.use(bodyParser.urlencoded({ extended: false}));     // req info parser
-
+// get middle ware
+var bodyParser = require('body-parser'); 
 var cookieParser = require('cookie-parser');
+var session = require('express-session')
+var FileStore = require('session-file-store')(session)
 
-function authOfOwner(req, res) {
-    var isOwner = false;        // 쿠키가 있을 때(로그인 했을 때) ture값으로 전환
-    var cookies = {};
-    if(req.headers.cookie) {
-        cookies = cookie.parse(req.headers.cookie);
-    }
-    if(cookies.email === 'lklone2005@gmail.com' && cookies.password === '111111') {
-        isOwner = true;
-    }
-        return isOwner;
-}
-
-function authStatusUI (req, res) {
-    var authStatusUI = '<a href="/login">login</a>'
-    if(authOfOwner(req, res)) {     // check a login status 
-        authStatusUI = '<a href="/logout_process">logout</a>'
-    }
-    return authStatusUI;
-}
+// middle ware usage
+app.use(express.static('./public'));      // read static files
+app.use(bodyParser.urlencoded({ extended: false}));     // req info parser
+app.use(session({
+    httpOnly : true,     
+    secure: true,     
+    secret: 'adsflk!@$#!@%$a23',   
+    resave: false,        
+    saveUninitialized: true,
+    store: new FileStore()
+}))     
 
 app.get('/', (req, res, next) => {
-    
     db.query(`SELECT count(*) FROM queto_src`, function(error, quetos) {
         if(error) {throw error};
         var randNum = Object.values(quetos[0])[0];
@@ -47,7 +36,6 @@ app.get('/', (req, res, next) => {
     
         db.query(`SELECT * FROM queto_src WHERE id = ?`,[ranNum], function(error, ranQueto) {
             if(error) {throw error}
-
             var pickedQueto = ranQueto[0].queto;
 
             nameOfLists = [              // todolist
@@ -69,13 +57,18 @@ app.get('/', (req, res, next) => {
             var templateHTML = template.templateHTML(components,
                 templateLists,
                 false,
-                authStatusUI(req, res)
+                auth.StatusUI(req, res)
             );
-            
               res.send(templateHTML);
         }); 
     });
 });
+
+var authData = {        // for test
+    email: 'lklone2005@gmail.com',
+    passowrd: '111111',
+    nickname: 'dave'
+}
 
 app.get('/login', (req, res, next) => {  
     nameOfComponents = [         // another components
@@ -89,7 +82,7 @@ app.get('/login', (req, res, next) => {
         <form action="/login_process" method="post">
             <p><input type="text" name="email" placeholder="email"></p>
             <p><input type="password" name="password" placeholder="password"></p>
-            <p><input type="submit"></p>
+            <p><input type="submit" value="login"></p>
         </form>
     `
     var templateHTML = template.templateHTML(components, false, loginForm);
@@ -99,45 +92,38 @@ app.get('/login', (req, res, next) => {
 
 app.post('/login_process', (req, res, next) => {  
     var post = req.body;         // used body-parser
-    console.log(post);
+    var email = authData.email;
+    var password = authData.passowrd;
 
-    if(post.email === 'lklone2005@gmail.com' && post.password === '111111'){
-        res.writeHead(302, {
-            'Set-Cookie':[
-                `email=${post.email}`,
-                `password=${post.password}`,
-                `nickname=dave`
-            ],
-            Location: `/`
-        });
-        // res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly')
-        // res.append('Set-Cookie', [
-        //     `email=${post.mail}`,
-        //     `password=${post.password}`,
-        //     `nickname=dave`,
-        //     'path=/;'
-        // ]);
-        res.end();
+    if(email === 'lklone2005@gmail.com' && password === '111111'){
+        req.session.is_logined = true;
+        req.session.nickname = authData.nickname;
+        req.session.save(function() {
+            res.redirect(`/`);
+        })
+        
     } else {
         res.end('Who the fuck are you?');
     }
     
 });
 
-app.get('/logout_process', (req, res, next) => {    // post가 아니라 get방식이다. 
-    res.writeHead(302, {
-        'Set-Cookie':[
-            `email=; Max-Age=0`,
-            `password=; Max-Age=0`,
-            `nickname=; Max-Age=0`
-        ],
-        Location: `/`
+app.get('/logout', (req, res, next) => {    // this is not post, just get
+    req.session.destroy(function(err) {
+        if(err) {throw err}
+        res.redirect(`/`);
     });
-    res.end();
 });
-
 
 app.listen(port, () => {
   console.log(`Server is running at ${port}`);
 })
 
+/*
+if not login, cant post anthing
+    if(!auth.isOwner(req, res)) {
+        alert('who the fuck are you?')
+        res.redirect('/');
+        retrun false;
+    }
+*/
