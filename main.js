@@ -4,7 +4,7 @@ const port = 3000;
 
 var mysql_test = require('./db_con.js')(); // DB connect
 var db = mysql_test.db_init();
-mysql_test.test_open(db);          
+mysql_test.test_open(db);
 
 const cookie = require('cookie');   // cookie
 const auth = require('./lib/auth'); // authentication with session
@@ -15,7 +15,7 @@ const templateForAuth = require('./lib/templateForAuth')
 const components = require('./lib/components');
 
 // get middle ware
-var bodyParser = require('body-parser'); 
+var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session')
 var FileStore = require('session-file-store')(session)
@@ -23,16 +23,19 @@ var FileStore = require('session-file-store')(session)
 // middle ware usage
 app.use(express.static('./public'));      // read static files
 app.use(bodyParser.urlencoded({ extended: false}));     // req info parser
+
 app.use(session({
-    httpOnly : true,     
-    secure: true,     
-    secret: 'adsflk!@$#!@%$a23',   
-    resave: false,        
+    httpOnly : true,
+    secure: true,
+    secret: 'adsflk!@$#!@%$a23',
+    resave: false,
     saveUninitialized: true,
     store: new FileStore()
-}))     
+}))
+
 
 app.get('/', (req, res, next) => {
+    console.log('this is ask4git_dev branch!');
     var section = 'phrase';
     components.phraseHTML(section).then(function(qureyResult) {
         console.log(qureyResult);
@@ -76,7 +79,7 @@ app.post('/signUp_process', (req, res, next) => {      // 똑같은 email이 올
     var email = post.email;
     var password = post.password;
     var nickname = post.nickname;
- 
+
     db.query(
         `INSERT INTO Authentication (mem_email, mem_password, mem_nickname)
         VALUES (?, ?, ?)`, [email, password, nickname], function(err, result) {
@@ -88,7 +91,7 @@ app.post('/signUp_process', (req, res, next) => {      // 똑같은 email이 올
                 var authTemplate = templateForAuth.authHTML(signUpForm);
                 res.send(authTemplate);
                 */
-            }; 
+            };
         res.redirect(`/`);
     });
     // if(email === 'lklone2005@gmail.com'){
@@ -102,7 +105,7 @@ app.post('/signUp_process', (req, res, next) => {      // 똑같은 email이 올
     // }
 });
 
-app.post('/login_process', (req, res, next) => {  
+app.post('/login_process', (req, res, next) => {
     var post = req.body;         // used body-parser
     var email = authData.email;
     var password = authData.passowrd;
@@ -143,7 +146,7 @@ if not login, cant post anthing
 
  /*  This code not working, but why?
     if(email === null || password === null || nickname === null) {
-        alert('공백 없이 입력해주시기 바랍니다.')    
-        return false;                    
+        alert('공백 없이 입력해주시기 바랍니다.')
+        return false;
     }
-*/ 
+*/
