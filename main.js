@@ -8,7 +8,11 @@ mysql_test.test_open(db);
 
 const cookie = require('cookie');   // cookie
 const auth = require('./lib/auth'); // authentication with session
+
+// template
 const template = require('./lib/template');
+const templateForAuth = require('./lib/templateForAuth')
+const components = require('./lib/components');
 
 // get middle ware
 var bodyParser = require('body-parser'); 
@@ -29,39 +33,12 @@ app.use(session({
 }))     
 
 app.get('/', (req, res, next) => {
-    db.query(`SELECT count(*) FROM queto_src`, function(error, quetos) {
-        if(error) {throw error};
-        var randNum = Object.values(quetos[0])[0];
-            ranNum = Math.floor(Math.random() * randNum);
-    
-        db.query(`SELECT * FROM queto_src WHERE id = ?`,[ranNum], function(error, ranQueto) {
-            if(error) {throw error}
-            var pickedQueto = ranQueto[0].queto;
-
-            nameOfLists = [              // todolist
-                {"section" : "todo", "title" : "TO DO LIST"},
-                {"section" : "doing", "title" : "DOING"},
-                {"section" : "done", "title" : "DONE"}
-            ]
-            var templateLists = template.templateList(nameOfLists);
-            
-            nameOfComponents = [         // another components
-                {"section" : "bg_photo", "title" : ""},
-                {"section" : "greeting", "title" : ""},
-                {"section" : "clock", "title" : ""},
-                {"section" : "weather", "title" : ""},
-                {"section" : "queto", "title" : `${pickedQueto}`}
-            ]
-            
-            var components = template.templateComponents(nameOfComponents);
-            var templateHTML = template.templateHTML(components,
-                templateLists,
-                false,
-                auth.StatusUI(req, res)
-            );
-              res.send(templateHTML);
-        }); 
+    var section = 'phrase';
+    components.phraseHTML(section).then(function(qureyResult) {
+        console.log(qureyResult);
     });
+    var HTML = template.HTML("qureyResult");
+    res.send(HTML);
 });
 
 var authData = {        // for test
@@ -70,51 +47,86 @@ var authData = {        // for test
     nickname: 'dave'
 }
 
-app.get('/login', (req, res, next) => {  
-    nameOfComponents = [         // another components
-        {"section" : "bg_photo", "title" : ""},
-        {"section" : "greeting", "title" : ""},
-        {"section" : "clock", "title" : ""},
-        {"section" : "weather", "title" : ""}
-    ]
-    var components = template.templateComponents(nameOfComponents);
-    var loginForm = `
-        <form action="/login_process" method="post">
-            <p><input type="text" name="email" placeholder="email"></p>
-            <p><input type="password" name="password" placeholder="password"></p>
-            <p><input type="submit" value="login"></p>
-        </form>
-    `
-    var templateHTML = template.templateHTML(components, false, loginForm);
+var obj_authForm = {
+    login_action: '/login_process',
+    signUp_action: '/signUp_process',
+    errorMent: `<p>중복된 이메일 입니다</p>.`,
+    nickname: `<p><input type="nickname" name="nickname" placeholder="nickname"></p>`,
+    login_value: 'Login',
+    signUp_value: 'Confirm'
+};
 
-    res.send(templateHTML);
+app.get('/login', (req, res, next) => {
+    var path = req.path;
+    var authForm = templateForAuth.authForm(obj_authForm, path);
+    var authTemplate = templateForAuth.authHTML(authForm);
+    res.send(authTemplate);
+});
+
+app.get('/signUp', (req, res, next) => {
+    var path = req.path;
+    var signUpForm = templateForAuth.authForm(obj_authForm, path);
+    var authTemplate = templateForAuth.authHTML(signUpForm);
+    res.send(authTemplate);
+})
+
+app.post('/signUp_process', (req, res, next) => {      // 똑같은 email이 올 경우 다른걸로 해달라는 요청 필요하다.
+    var path = req.path;
+    var post = req.body;         // used body-parser
+    var email = post.email;
+    var password = post.password;
+    var nickname = post.nickname;
+ 
+    db.query(
+        `INSERT INTO Authentication (mem_email, mem_password, mem_nickname)
+        VALUES (?, ?, ?)`, [email, password, nickname], function(err, result) {
+            if(err) {
+                res.end('중복된 이메일 입니다.')
+                /*
+                err - Cannot set headers after they are sent to the client
+                var signUpForm = templateForAuth.authForm(obj_authForm, path);
+                var authTemplate = templateForAuth.authHTML(signUpForm);
+                res.send(authTemplate);
+                */
+            }; 
+        res.redirect(`/`);
+    });
+    // if(email === 'lklone2005@gmail.com'){
+    // req.session.is_logined = true;
+    // req.session.nickname = authData.nickname;
+    //     req.session.save(function() {
+    //         res.redirect(`/`);
+    //     })
+    // } else {
+    //     res.end('Who the fuck are you?');
+    // }
 });
 
 app.post('/login_process', (req, res, next) => {  
     var post = req.body;         // used body-parser
     var email = authData.email;
     var password = authData.passowrd;
+    var nickname = authData.nickname;
 
     if(email === 'lklone2005@gmail.com' && password === '111111'){
-        req.session.is_logined = true;
-        req.session.nickname = authData.nickname;
-        req.session.save(function() {
-            res.redirect(`/`);
-        })
-        
+    req.session.is_logined = true;
+    req.session.nickname = authData.nickname;
+    req.session.save(function() {
+        res.redirect(`/`);
+    })
     } else {
         res.end('Who the fuck are you?');
     }
-    
 });
 
 app.get('/logout', (req, res, next) => {    // this is not post, just get
     req.session.destroy(function(err) {
-        if(err) {throw err}
+        if(err) {
+
+        }
         res.redirect(`/`);
     });
 });
-
 app.listen(port, () => {
   console.log(`Server is running at ${port}`);
 })
@@ -127,3 +139,11 @@ if not login, cant post anthing
         retrun false;
     }
 */
+
+
+ /*  This code not working, but why?
+    if(email === null || password === null || nickname === null) {
+        alert('공백 없이 입력해주시기 바랍니다.')    
+        return false;                    
+    }
+*/ 

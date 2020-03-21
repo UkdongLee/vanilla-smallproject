@@ -1,0 +1,8 @@
+.DS_Store
+quetoSrc.js
+db/
+db_con.js
+node_modules/
+package-lock.json
+require-2.3.6.js
+sessions/
