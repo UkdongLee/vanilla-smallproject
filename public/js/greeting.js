@@ -1,5 +1,5 @@
 const greetingId = document.querySelector("#greeting");
-const greeting_form = greetingId.querySelector(".greeting_form");
+const greeting_form = greetingId.querySelector(".greeting");
 const greeting_input = greeting_form.querySelector("input");
 const greeting = greetingId.querySelector("h2");
 

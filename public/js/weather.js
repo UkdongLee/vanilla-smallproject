@@ -11,16 +11,13 @@ function getweather(broughtInfo) {
 
     fetch(url)
     .then(function(response) {
-        console.log(response);
+
         return response.json();
     })
     .then(function(json) {
         const temperature = json.main.temp;
         const place = json.name;
         weather.innerText = `${temperature} @ ${place}`;
-
-
-        
     });
 }
 
@@ -36,7 +33,6 @@ function dropPosition(position) {
         loPosition
     };
     savePosition(positionObj);
-    console.log('this is dropPosition');
     getweather(laPosition, loPosition); // 내 생각엔 여기가 문제야. 매개변수가 2개인데 getweather함수에서 매개변수 1개로 받는중임... 이게 정상적으로 위치값이 전달되는걸까?
 }
 

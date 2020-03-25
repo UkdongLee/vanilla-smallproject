@@ -33,19 +33,33 @@ app.use(session({
 }))     
 
 app.get('/', (req, res, next) => {
+    /*
     var section = 'phrase';
     components.phraseHTML(section).then(function(qureyResult) {
-        console.log(qureyResult);
+        var componentsTemplate = template.HTML(qureyResult);
+        res.send(componentsTemplate);
     });
-    var HTML = template.HTML("qureyResult");
-    res.send(HTML);
-});
+    */
 
-var authData = {        // for test
-    email: 'lklone2005@gmail.com',
-    passowrd: '111111',
-    nickname: 'dave'
-}
+    //  phrase
+    var async = async function(req, res, section) { 
+        var phrase = await components.phraseHTML(section);
+
+        //  clock
+        var clock = components.clockHTML('clock');
+        //  weather
+        var weather = components.weatherHTML('weather');
+        //  backgroundPhoto
+        var backgroundPhoto = components.backgroundPhotoHTML('bg_photo');
+        //  greeting(정적파일 수정필요)
+        var greeting = components.greetingHTML('greeting');
+
+        var test = template.HTML(clock, weather, backgroundPhoto, phrase, greeting); 
+        res.write(test);
+        res.end()
+    }
+    async(req, res, 'phrase');
+});
 
 var obj_authForm = {
     login_action: '/login_process',
@@ -63,6 +77,56 @@ app.get('/login', (req, res, next) => {
     res.send(authTemplate);
 });
 
+app.post('/login_process', (req, res, next) => {  
+    var post = req.body;         // used body-parser
+    var email = post.email;
+    var password = post.password;
+    // var nickname = post.nickname;
+
+    db.query('SELECT mem_email, mem_password FROM Authentication', function(err, result) {
+        if(err) {throw err}
+            if(email === result[0].mem_email && password === result[0].password) {
+                req.session.is_logined = true;
+                req.session.save(() => {
+                    res.redirect(`/`);
+                });
+            } else {
+
+                res.redirect(`/login`);
+            
+            }
+    });
+});
+
+app.get('/searching', function(req, res){
+
+    // input value from search
+    var val = req.query.search;
+   //console.log(val);
+   
+   // url used to search yql
+   var url = "";
+   console.log(url);
+   
+    // request module is used to process the yql url and return the results in JSON format
+    request(url, function(err, resp, body) {
+      body = JSON.parse(body);
+      // logic used to compare search results with the input from user
+      if (!body.query.results.RDF.item) {
+        craig = "No results found. Try again.";
+      } else {
+       craig = body.query.results.RDF.item[0]['about'];
+      }
+    });
+   
+     // pass back the results to client side
+     res.send(craig);
+   
+     // testing the route
+     // res.send("WHEEE");
+   
+   });
+
 app.get('/signUp', (req, res, next) => {
     var path = req.path;
     var signUpForm = templateForAuth.authForm(obj_authForm, path);
@@ -72,51 +136,33 @@ app.get('/signUp', (req, res, next) => {
 
 app.post('/signUp_process', (req, res, next) => {      // 똑같은 email이 올 경우 다른걸로 해달라는 요청 필요하다.
     var path = req.path;
-    var post = req.body;         // used body-parser
+    var post = req.body;  
     var email = post.email;
     var password = post.password;
     var nickname = post.nickname;
  
-    db.query(
-        `INSERT INTO Authentication (mem_email, mem_password, mem_nickname)
-        VALUES (?, ?, ?)`, [email, password, nickname], function(err, result) {
-            if(err) {
-                res.end('중복된 이메일 입니다.')
-                /*
-                err - Cannot set headers after they are sent to the client
-                var signUpForm = templateForAuth.authForm(obj_authForm, path);
-                var authTemplate = templateForAuth.authHTML(signUpForm);
-                res.send(authTemplate);
-                */
-            }; 
-        res.redirect(`/`);
+       // acutally this's for signup
+    db.query('SELECT * FROM Authentication WHERE mem_email = ?', [email], function(err, results) {
+    if(err) {throw err}
+        if(email !== results[0].mem_email) {
+            db.query(
+                `INSERT INTO Authentication (mem_email, mem_password, mem_nickname)
+                VALUES (?, ?, ?)`, [email, password, nickname], function(err, result) {
+                    if(err) {throw err}
+                    req.session.is_logined = true;
+                    req.session.nickname = nickname;
+                    req.session.save(() => {
+                    res.redirect('/');
+                    });
+            });
+        } else {
+            // 회원가입 이메일과 데이터베이스에 저장된 이메일이 같다면 ajax?
+            res.send({
+                "code": 400,
+                "failed": "error ocurred"
+            });
+        }
     });
-    // if(email === 'lklone2005@gmail.com'){
-    // req.session.is_logined = true;
-    // req.session.nickname = authData.nickname;
-    //     req.session.save(function() {
-    //         res.redirect(`/`);
-    //     })
-    // } else {
-    //     res.end('Who the fuck are you?');
-    // }
-});
-
-app.post('/login_process', (req, res, next) => {  
-    var post = req.body;         // used body-parser
-    var email = authData.email;
-    var password = authData.passowrd;
-    var nickname = authData.nickname;
-
-    if(email === 'lklone2005@gmail.com' && password === '111111'){
-    req.session.is_logined = true;
-    req.session.nickname = authData.nickname;
-    req.session.save(function() {
-        res.redirect(`/`);
-    })
-    } else {
-        res.end('Who the fuck are you?');
-    }
 });
 
 app.get('/logout', (req, res, next) => {    // this is not post, just get
@@ -127,6 +173,7 @@ app.get('/logout', (req, res, next) => {    // this is not post, just get
         res.redirect(`/`);
     });
 });
+
 app.listen(port, () => {
   console.log(`Server is running at ${port}`);
 })
@@ -138,8 +185,6 @@ if not login, cant post anthing
         res.redirect('/');
         retrun false;
     }
-*/
-
 
  /*  This code not working, but why?
     if(email === null || password === null || nickname === null) {
