@@ -70,7 +70,7 @@ var obj_authForm = {
     signUp_value: 'Confirm'
 };
 
-app.get('/login', (req, res, next) => {
+app.get('/login', (req, res, next) => {         // Request Method : 304
     var path = req.path;
     var authForm = templateForAuth.authForm(obj_authForm, path);
     var authTemplate = templateForAuth.authHTML(authForm);
@@ -78,63 +78,44 @@ app.get('/login', (req, res, next) => {
 });
 
 app.post('/login_process', (req, res, next) => {  
+    /*
     var post = req.body;         // used body-parser
     var email = post.email;
     var password = post.password;
     // var nickname = post.nickname;
+    */
+    
+    var email = req.body.userId;
+    var password = req.body.userPassword;
+    console.log("Information received !");
 
     db.query('SELECT mem_email, mem_password FROM Authentication', function(err, result) {
         if(err) {throw err}
-            if(email === result[0].mem_email && password === result[0].password) {
+
+            var emailFromDB = result[0].mem_email;  
+            var passwordFromDB = result[0].mem_password + "";       // convert int -> string
+
+            if(email === emailFromDB && password === passwordFromDB) {
+                console.log('if ok')
                 req.session.is_logined = true;
                 req.session.save(() => {
                     res.redirect(`/`);
                 });
             } else {
-
-                res.redirect(`/login`);
-            
+                res.status(204);
+                res.end(); 
             }
     });
 });
-
-app.get('/searching', function(req, res){
-
-    // input value from search
-    var val = req.query.search;
-   //console.log(val);
-   
-   // url used to search yql
-   var url = "";
-   console.log(url);
-   
-    // request module is used to process the yql url and return the results in JSON format
-    request(url, function(err, resp, body) {
-      body = JSON.parse(body);
-      // logic used to compare search results with the input from user
-      if (!body.query.results.RDF.item) {
-        craig = "No results found. Try again.";
-      } else {
-       craig = body.query.results.RDF.item[0]['about'];
-      }
-    });
-   
-     // pass back the results to client side
-     res.send(craig);
-   
-     // testing the route
-     // res.send("WHEEE");
-   
-   });
 
 app.get('/signUp', (req, res, next) => {
     var path = req.path;
     var signUpForm = templateForAuth.authForm(obj_authForm, path);
     var authTemplate = templateForAuth.authHTML(signUpForm);
     res.send(authTemplate);
-})
+});
 
-app.post('/signUp_process', (req, res, next) => {      // 똑같은 email이 올 경우 다른걸로 해달라는 요청 필요하다.
+app.post('/signUp_process', (req, res, next) => {
     var path = req.path;
     var post = req.body;  
     var email = post.email;
@@ -149,10 +130,10 @@ app.post('/signUp_process', (req, res, next) => {      // 똑같은 email이 올
                 `INSERT INTO Authentication (mem_email, mem_password, mem_nickname)
                 VALUES (?, ?, ?)`, [email, password, nickname], function(err, result) {
                     if(err) {throw err}
-                    req.session.is_logined = true;
-                    req.session.nickname = nickname;
-                    req.session.save(() => {
-                    res.redirect('/');
+                        req.session.is_logined = true;
+                        req.session.nickname = nickname;
+                        req.session.save(() => {
+                        res.redirect('/');
                     });
             });
         } else {
