@@ -62,8 +62,8 @@ app.get('/', (req, res, next) => {
 });
 
 var obj_authForm = {
-    login_action: '/login_process',
-    signUp_action: '/signUp_process',
+    login_action: '/loginProcess',
+    signUp_action: '/signUpProcess',
     errorMent: `<p>중복된 이메일 입니다</p>.`,
     nickname: `<p><input type="nickname" name="nickname" placeholder="nickname"></p>`,
     login_value: 'Login',
@@ -77,14 +77,7 @@ app.get('/login', (req, res, next) => {         // Request Method : 304
     res.send(authTemplate);
 });
 
-app.post('/login_process', (req, res, next) => {  
-    /*
-    var post = req.body;         // used body-parser
-    var email = post.email;
-    var password = post.password;
-    // var nickname = post.nickname;
-    */
-    
+app.post('/loginProcess', (req, res, next) => {  
     var email = req.body.userId;
     var password = req.body.userPassword;
     console.log("Information received !");
@@ -96,7 +89,6 @@ app.post('/login_process', (req, res, next) => {
             var passwordFromDB = result[0].mem_password + "";       // convert int -> string
 
             if(email === emailFromDB && password === passwordFromDB) {
-                console.log('if ok')
                 req.session.is_logined = true;
                 req.session.save(() => {
                     res.redirect(`/`);
@@ -115,17 +107,14 @@ app.get('/signUp', (req, res, next) => {
     res.send(authTemplate);
 });
 
-app.post('/signUp_process', (req, res, next) => {
-    var path = req.path;
-    var post = req.body;  
-    var email = post.email;
-    var password = post.password;
-    var nickname = post.nickname;
- 
-       // acutally this's for signup
+app.post('/signUpProcess', (req, res, next) => {
+    var email = req.body.newId;
+    var password = req.body.newPassword;
+    var nickname = req.body.newNickname;
+
     db.query('SELECT * FROM Authentication WHERE mem_email = ?', [email], function(err, results) {
     if(err) {throw err}
-        if(email !== results[0].mem_email) {
+        if(results[0] === undefined) {
             db.query(
                 `INSERT INTO Authentication (mem_email, mem_password, mem_nickname)
                 VALUES (?, ?, ?)`, [email, password, nickname], function(err, result) {
@@ -136,8 +125,10 @@ app.post('/signUp_process', (req, res, next) => {
                         res.redirect('/');
                     });
             });
+        } else if(email === results[0].mem_email) {
+            res.status(204);
+            res.end(); 
         } else {
-            // 회원가입 이메일과 데이터베이스에 저장된 이메일이 같다면 ajax?
             res.send({
                 "code": 400,
                 "failed": "error ocurred"
