@@ -14,10 +14,9 @@
 
 /* greeting */
 #greeting {}
-#greeting #container {}
-#greeting #container .greeting_form {}
-#greeting #container .greeting_form input {}
-#greeting #container .greeting {font-size: 48px; color: white; z-index: 0; }
+#greeting h2 {font-size: 48px; color: white; z-index: 0; }
+#greeting .greeting {}
+#greeting .greeting input {}
 
 /* clock */
 #clock {}

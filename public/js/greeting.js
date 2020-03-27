@@ -18,7 +18,7 @@ function handleSubmit(event) {
 }
 
 function askForName() {
-    greeting_form.addEventListener("submit", handleSubmit);  //should add 'form'
+    greeting_form.addEventListener("submit", handleSubmit);
 }
 
 function sayGreeting(text) {

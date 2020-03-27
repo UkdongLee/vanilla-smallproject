@@ -53,8 +53,24 @@ app.get('/', (req, res, next) => {
         var backgroundPhoto = components.backgroundPhotoHTML('bg_photo');
         //  greeting(정적파일 수정필요)
         var greeting = components.greetingHTML('greeting');
+        //  todoList
+        var todoList = components.todoListHTML('todo', 'TO DO LIST');
+        //  doList
+        var doingList = components.doingListHTML('doing', 'DOING');
+        //  doneList
+        var doneList = components.doneListHTML('done', 'DONE');
 
-        var test = template.HTML(clock, weather, backgroundPhoto, phrase, greeting); 
+
+        var test = template.HTML(
+            clock, 
+            weather, 
+            backgroundPhoto, 
+            phrase, 
+            greeting,
+            todoList,
+            doingList,
+            doneList
+        ); 
         res.write(test);
         res.end()
     }
